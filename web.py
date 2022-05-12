@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Text, null
+from sqlalchemy import Column, String, Integer, Text, DateTime
 from datetime import datetime
 
 
@@ -12,11 +12,11 @@ db = SQLAlchemy(app)
 
 class Article(db.Model):
     # Создаем поля в базе данных
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(String(150), nullable=False)
-    intro = db.Column(String(300), nullable=False)
-    text = db.Column(Text, nullable=False)
-    date = db.Column(db.DateTime, default=datetime.utcnow)
+    id = Column(Integer, primary_key=True)
+    title = Column(String(150), nullable=False)
+    intro = Column(String(300), nullable=False)
+    content = Column(Text, nullable=False)
+    date = Column(DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return '<Article %r>' %self.id
@@ -36,18 +36,16 @@ def users():
 @app.route('/create-article', methods=['POST', 'GET'])
 def create_article():
     if request.method == 'POST':
-        title = request.form['title']
-        intro = request.form['intro']
-        content = request.form['text']
+        _title = request.form['title']
+        _intro = request.form['intro']
+        _text = request.form['text']
 
-        article = Article(title=title, intro=intro, text=content)
-        
-        try:
-            db.session.add(article)
-            db.session.commit()
-            return redirect('/')
-        except:
-            return 'An error occurred while adding the article.'
+        article = Article(title=_title, intro=_intro, content=_text)
+    
+        db.session.add(article)
+        db.session.commit()
+        return redirect('/')
+    
     else: return render_template('create-article.html')
 
 # Динамический путь
